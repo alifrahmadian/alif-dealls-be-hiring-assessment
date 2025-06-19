@@ -13,6 +13,7 @@ import (
 )
 
 type Claims struct {
+	ID int64 `json:"id"`
 	Username string `json:"username"`
 	RoleID int64 `json:"role_id"`
 	jwt.RegisteredClaims
