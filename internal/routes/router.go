@@ -24,5 +24,6 @@ func SetupRoutes(secretKey string, router *gin.Engine, handlers *configs.Handler
 	{
 		employeeRoutes.POST("/attendances", handlers.AttendanceHandler.CreateAttendance)
 		employeeRoutes.POST("/overtimes", handlers.OvertimeHandler.CreateOvertime)
+		employeeRoutes.POST("/reimbursement", handlers.ReimbursementHandler.CreateReimbursement)
 	}
 }

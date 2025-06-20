@@ -38,16 +38,19 @@ func LoadConfig() (*configs.Config, error) {
 	attendancePeriodRepo := repositories.NewAttendancePeriodRepository(db)
 	attendanceRepo := repositories.NewAttendanceRepository(db)
 	overtimeRepo := repositories.NewOvertimeRepository(db)
+	reimbursementRepo := repositories.NewReimbursementRepository(db)
 
 	authService := services.NewAuthService(userRepo)
 	attendancePeriodService := services.NewAttendancePeriodService(attendancePeriodRepo)
 	attendanceService := services.NewAttendanceService(attendanceRepo)
 	overtimeService := services.NewOvertimeService(overtimeRepo, attendanceRepo)
+	reimbursementService := services.NewReimbursementService(reimbursementRepo)
 
 	authHandler := handlers.NewAuthHandler(&authService, authConfig.SecretKey, authConfig.TTL)
 	attendancePeriodHandler := handlers.NewAttendancePeriodHandler(&attendancePeriodService)
 	attendanceHandler := handlers.NewAttendanceHandler(&attendanceService)
 	overtimeHandler := handlers.NewOvertimeHandler(&overtimeService)
+	reimbursementHandler := handlers.NewReimbursementHandler(&reimbursementService)
 
 	return &configs.Config{
 		DB: db,
@@ -58,6 +61,7 @@ func LoadConfig() (*configs.Config, error) {
 			AttendancePeriodHandler: attendancePeriodHandler,
 			AttendanceHandler: attendanceHandler,
 			OvertimeHandler: overtimeHandler,
+			ReimbursementHandler: reimbursementHandler,
 		},
 	}, nil
 }
