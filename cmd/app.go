@@ -5,7 +5,10 @@ import (
 
 	"github.com/alifrahmadian/alif-dealls-be-hiring-assessment/configs"
 	"github.com/alifrahmadian/alif-dealls-be-hiring-assessment/internal/db"
+	"github.com/alifrahmadian/alif-dealls-be-hiring-assessment/internal/handlers"
+	"github.com/alifrahmadian/alif-dealls-be-hiring-assessment/internal/repositories"
 	"github.com/alifrahmadian/alif-dealls-be-hiring-assessment/internal/routes"
+	"github.com/alifrahmadian/alif-dealls-be-hiring-assessment/internal/services"
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,13 +32,25 @@ func LoadConfig() (*configs.Config, error) {
 		return nil, fmt.Errorf("failed to connect database: %w", err)
 	}
 
-	defer db.Close()
+	// defer db.Close()
+
+	userRepo := repositories.NewUserRepository(db)
+	attendancePeriodRepo := repositories.NewAttendancePeriodRepository(db)
+
+	authService := services.NewAuthService(userRepo)
+	attendancePeriodService := services.NewAttendancePeriodService(attendancePeriodRepo)
+
+	authHandler := handlers.NewAuthHandler(&authService, authConfig.SecretKey, authConfig.TTL)
+	attendancePeriodHandler := handlers.NewAttendancePeriodHandler(&attendancePeriodService)
 
 	return &configs.Config{
 		DB: db,
 		Env: env,
 		Auth: authConfig,
-		Handler: &configs.Handler{},
+		Handler: &configs.Handler{
+			AuthHandler: authHandler,
+			AttendancePeriodHandler: attendancePeriodHandler,
+		},
 	}, nil
 }
 

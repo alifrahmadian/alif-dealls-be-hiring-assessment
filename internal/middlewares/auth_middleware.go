@@ -29,7 +29,7 @@ func AuthMiddleware(secretKey string, allowedRoles ...int64) gin.HandlerFunc{
 		}
 
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-		if tokenString != authHeader {
+		if tokenString == authHeader {
 			responses.ErrorResponse(c, http.StatusUnauthorized, e.ErrInvalidTokenFormat.Error())
 			c.Abort()
 			return

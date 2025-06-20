@@ -1,6 +1,10 @@
 package configs
 
-import "database/sql"
+import (
+	"database/sql"
+
+	"github.com/alifrahmadian/alif-dealls-be-hiring-assessment/internal/handlers"
+)
 
 type Config struct {
 	DB *sql.DB
@@ -9,7 +13,10 @@ type Config struct {
 	Env string
 }
 
-type Handler struct {}
+type Handler struct {
+	AuthHandler *handlers.AuthHandler
+	AttendancePeriodHandler *handlers.AttendancePeriodHandler
+}
 
 type AuthConfig struct {
 	TTL int
