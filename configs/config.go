@@ -17,6 +17,7 @@ type Handler struct {
 	AuthHandler *handlers.AuthHandler
 	AttendancePeriodHandler *handlers.AttendancePeriodHandler
 	AttendanceHandler *handlers.AttendanceHandler
+	OvertimeHandler *handlers.OvertimeHandler
 }
 
 type AuthConfig struct {

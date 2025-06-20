@@ -4,6 +4,7 @@ import (
 	"github.com/alifrahmadian/alif-dealls-be-hiring-assessment/internal/models"
 	r "github.com/alifrahmadian/alif-dealls-be-hiring-assessment/internal/repositories"
 	e "github.com/alifrahmadian/alif-dealls-be-hiring-assessment/pkg/errors"
+	"github.com/alifrahmadian/alif-dealls-be-hiring-assessment/pkg/utils"
 )
 
 type AttendanceService interface {
@@ -28,6 +29,11 @@ func (s *attendanceService) CreateAttendance(attendance *models.Attendance) (*mo
 
 	if isAttendanceRecorded {
 		return nil, e.ErrEmployeeHasRecordAttendance
+	}
+
+	
+	if utils.IsWeekend(attendance.Date) {
+		return nil, e.ErrIsWeekend
 	}
 
 	newAttendance, err := s.AttendanceRepo.CreateAttendance(attendance)

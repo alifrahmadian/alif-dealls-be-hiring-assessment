@@ -23,5 +23,6 @@ func SetupRoutes(secretKey string, router *gin.Engine, handlers *configs.Handler
 	employeeRoutes.Use(middlewares.AuthMiddleware(secretKey, constants.RoleEmployee)) 
 	{
 		employeeRoutes.POST("/attendances", handlers.AttendanceHandler.CreateAttendance)
+		employeeRoutes.POST("/overtimes", handlers.OvertimeHandler.CreateOvertime)
 	}
 }

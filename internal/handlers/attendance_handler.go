@@ -26,16 +26,9 @@ func NewAttendanceHandler(attendanceService *services.AttendanceService) *Attend
 func (h *AttendanceHandler) CreateAttendance(c *gin.Context) {
 	userID := c.GetInt64("user_id")
 
-	checkInDate := time.Now()
-	if isWeekend(checkInDate) {
-		responses.ErrorResponse(c, http.StatusBadRequest, e.ErrIsWeekend.Error())
-		return
-	}
-	
-
 	attendance := &models.Attendance{
 		UserID: userID,
-		Date: checkInDate,
+		Date: time.Now(),
 		CreatedBy: userID,
 		UpdatedBy: userID,
 		CreatedAt: time.Now(),
@@ -45,6 +38,16 @@ func (h *AttendanceHandler) CreateAttendance(c *gin.Context) {
 	newAttendance, err := h.AttendanceService.CreateAttendance(attendance)
 	if err != nil {
 		responses.ErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if err == e.ErrEmployeeHasRecordAttendance {
+		responses.ErrorResponse(c, http.StatusBadRequest, e.ErrEmployeeHasRecordAttendance.Error())
+		return
+	}
+
+	if err == e.ErrIsWeekend {
+		responses.ErrorResponse(c, http.StatusBadRequest, e.ErrIsWeekend.Error())
 		return
 	}
 
