@@ -26,7 +26,8 @@ func NewAttendanceHandler(attendanceService *services.AttendanceService) *Attend
 func (h *AttendanceHandler) CreateAttendance(c *gin.Context) {
 	userID := c.GetInt64("user_id")
 
-	if isWeekend(time.Now()) {
+	checkInDate := time.Now()
+	if isWeekend(checkInDate) {
 		responses.ErrorResponse(c, http.StatusBadRequest, e.ErrIsWeekend.Error())
 		return
 	}
@@ -34,7 +35,7 @@ func (h *AttendanceHandler) CreateAttendance(c *gin.Context) {
 
 	attendance := &models.Attendance{
 		UserID: userID,
-		Date: time.Now(),
+		Date: checkInDate,
 		CreatedBy: userID,
 		UpdatedBy: userID,
 		CreatedAt: time.Now(),
