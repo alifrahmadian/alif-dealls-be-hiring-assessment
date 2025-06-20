@@ -18,7 +18,10 @@ func SetupRoutes(secretKey string, router *gin.Engine, handlers *configs.Handler
 	{
 		adminRoutes.POST("/admin/attendance_periods", handlers.AttendancePeriodHandler.CreateAttendancePeriod)
 	}
-	
 
-
+	employeeRoutes := router.Group("")
+	employeeRoutes.Use(middlewares.AuthMiddleware(secretKey, constants.RoleEmployee)) 
+	{
+		employeeRoutes.POST("/attendances", handlers.AttendanceHandler.CreateAttendance)
+	}
 }

@@ -10,17 +10,17 @@ type AttendancePeriodRepository interface {
 	CreateAttendancePeriod (attendancePeriod *models.AttendancePeriod) (*models.AttendancePeriod, error)
 }
 
-type attendanceRepository struct {
+type attendancePeriodRepository struct {
 	DB *sql.DB
 }
 
 func NewAttendancePeriodRepository(db *sql.DB) AttendancePeriodRepository {
-	return &attendanceRepository{
+	return &attendancePeriodRepository{
 		DB: db,
 	}
 }
 
-func (r *attendanceRepository) CreateAttendancePeriod (attendancePeriod *models.AttendancePeriod) (*models.AttendancePeriod, error) {
+func (r *attendancePeriodRepository) CreateAttendancePeriod (attendancePeriod *models.AttendancePeriod) (*models.AttendancePeriod, error) {
 	query := "INSERT INTO attendance_periods(start_date, end_date, created_by, updated_by, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id"
 
 	err := r.DB.QueryRow(

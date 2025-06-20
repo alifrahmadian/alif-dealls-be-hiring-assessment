@@ -36,12 +36,15 @@ func LoadConfig() (*configs.Config, error) {
 
 	userRepo := repositories.NewUserRepository(db)
 	attendancePeriodRepo := repositories.NewAttendancePeriodRepository(db)
+	attendanceRepo := repositories.NewAttendanceRepository(db)
 
 	authService := services.NewAuthService(userRepo)
 	attendancePeriodService := services.NewAttendancePeriodService(attendancePeriodRepo)
+	attendanceService := services.NewAttendanceService(attendanceRepo)
 
 	authHandler := handlers.NewAuthHandler(&authService, authConfig.SecretKey, authConfig.TTL)
 	attendancePeriodHandler := handlers.NewAttendancePeriodHandler(&attendancePeriodService)
+	attendanceHandler := handlers.NewAttendanceHandler(&attendanceService)
 
 	return &configs.Config{
 		DB: db,
@@ -50,6 +53,7 @@ func LoadConfig() (*configs.Config, error) {
 		Handler: &configs.Handler{
 			AuthHandler: authHandler,
 			AttendancePeriodHandler: attendancePeriodHandler,
+			AttendanceHandler: attendanceHandler,
 		},
 	}, nil
 }
