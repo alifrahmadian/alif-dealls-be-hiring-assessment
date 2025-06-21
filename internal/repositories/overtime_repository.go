@@ -10,6 +10,8 @@ import (
 type OvertimeRepository interface {
 	CreateOvertime(overtime *models.Overtime) (*models.Overtime, error)
 	CheckIfOvertimeHasBeenTaken(date time.Time) (bool, error)
+	SumOvertimeHoursPerPeriod(userID int64, startDate time.Time, endDate time.Time) (uint64, error)
+	InsertPayrollID(tx *sql.Tx, userID, payrollID int64, startDate, endDate time.Time) error
 }
 
 type overtimeRepository struct {
@@ -50,7 +52,7 @@ func (r *overtimeRepository) CheckIfOvertimeHasBeenTaken(date time.Time) (bool, 
 	query := "SELECT id FROM overtimes where date = $1"
 
 	var id int64
-	
+
 	err := r.DB.QueryRow(query, date).Scan(&id)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -61,4 +63,42 @@ func (r *overtimeRepository) CheckIfOvertimeHasBeenTaken(date time.Time) (bool, 
 	}
 
 	return true, nil
+}
+
+func (r *overtimeRepository) SumOvertimeHoursPerPeriod(userID int64, startDate time.Time, endDate time.Time) (uint64, error) {
+	var sum uint64
+
+	query := `
+		SELECT COALESCE(SUM(overtime_hours), 0) FROM overtimes
+		WHERE user_id = $1
+		AND payroll_id IS NULL
+		AND date BETWEEN $2 AND $3;
+	`
+
+	err := r.DB.QueryRow(
+		query,
+		userID,
+		startDate,
+		endDate,
+	).Scan(&sum)
+	if err != nil {
+		return 0, err
+	}
+
+	return sum, nil
+}
+
+func (r *overtimeRepository) InsertPayrollID(tx *sql.Tx, userID, payrollID int64, startDate, endDate time.Time) error {
+	query := `
+		UPDATE overtimes
+		SET payroll_id = $1, updated_at = NOW()
+		WHERE user_id = $2 
+		AND date BETWEEN $3 AND $4;
+	`
+	_, err := tx.Exec(query, payrollID, userID, startDate, endDate)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

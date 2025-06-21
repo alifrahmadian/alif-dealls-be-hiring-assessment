@@ -7,20 +7,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRoutes(secretKey string, router *gin.Engine, handlers *configs.Handler){
+func SetupRoutes(secretKey string, router *gin.Engine, handlers *configs.Handler) {
 	publicRoutes := router.Group("")
 	{
 		publicRoutes.POST("/login", handlers.AuthHandler.Login)
 	}
 
 	adminRoutes := router.Group("")
-	adminRoutes.Use(middlewares.AuthMiddleware(secretKey, constants.RoleAdmin)) 
+	adminRoutes.Use(middlewares.AuthMiddleware(secretKey, constants.RoleAdmin))
 	{
 		adminRoutes.POST("/admin/attendance_periods", handlers.AttendancePeriodHandler.CreateAttendancePeriod)
+		adminRoutes.POST("/admin/payrolls", handlers.PayrollHandler.CreatePayroll)
 	}
 
 	employeeRoutes := router.Group("")
-	employeeRoutes.Use(middlewares.AuthMiddleware(secretKey, constants.RoleEmployee)) 
+	employeeRoutes.Use(middlewares.AuthMiddleware(secretKey, constants.RoleEmployee))
 	{
 		employeeRoutes.POST("/attendances", handlers.AttendanceHandler.CreateAttendance)
 		employeeRoutes.POST("/overtimes", handlers.OvertimeHandler.CreateOvertime)

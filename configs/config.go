@@ -7,21 +7,22 @@ import (
 )
 
 type Config struct {
-	DB *sql.DB
-	Auth *AuthConfig
+	DB      *sql.DB
+	Auth    *AuthConfig
 	Handler *Handler
-	Env string
+	Env     string
 }
 
 type Handler struct {
-	AuthHandler *handlers.AuthHandler
+	AuthHandler             *handlers.AuthHandler
 	AttendancePeriodHandler *handlers.AttendancePeriodHandler
-	AttendanceHandler *handlers.AttendanceHandler
-	OvertimeHandler *handlers.OvertimeHandler
-	ReimbursementHandler *handlers.ReimbursementHandler
+	AttendanceHandler       *handlers.AttendanceHandler
+	OvertimeHandler         *handlers.OvertimeHandler
+	ReimbursementHandler    *handlers.ReimbursementHandler
+	PayrollHandler          *handlers.PayrollHandler
 }
 
 type AuthConfig struct {
-	TTL int
+	TTL       int
 	SecretKey string
 }

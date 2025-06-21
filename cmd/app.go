@@ -39,29 +39,40 @@ func LoadConfig() (*configs.Config, error) {
 	attendanceRepo := repositories.NewAttendanceRepository(db)
 	overtimeRepo := repositories.NewOvertimeRepository(db)
 	reimbursementRepo := repositories.NewReimbursementRepository(db)
+	payrollRepo := repositories.NewPayrollRepository(db)
 
 	authService := services.NewAuthService(userRepo)
 	attendancePeriodService := services.NewAttendancePeriodService(attendancePeriodRepo)
 	attendanceService := services.NewAttendanceService(attendanceRepo)
 	overtimeService := services.NewOvertimeService(overtimeRepo, attendanceRepo)
 	reimbursementService := services.NewReimbursementService(reimbursementRepo)
+	payrollService := services.NewPayrollService(
+		payrollRepo,
+		userRepo,
+		attendancePeriodRepo,
+		attendanceRepo,
+		overtimeRepo,
+		reimbursementRepo,
+	)
 
 	authHandler := handlers.NewAuthHandler(&authService, authConfig.SecretKey, authConfig.TTL)
 	attendancePeriodHandler := handlers.NewAttendancePeriodHandler(&attendancePeriodService)
 	attendanceHandler := handlers.NewAttendanceHandler(&attendanceService)
 	overtimeHandler := handlers.NewOvertimeHandler(&overtimeService)
 	reimbursementHandler := handlers.NewReimbursementHandler(&reimbursementService)
+	payrollHandler := handlers.NewPayrollHandler(&payrollService)
 
 	return &configs.Config{
-		DB: db,
-		Env: env,
+		DB:   db,
+		Env:  env,
 		Auth: authConfig,
 		Handler: &configs.Handler{
-			AuthHandler: authHandler,
+			AuthHandler:             authHandler,
 			AttendancePeriodHandler: attendancePeriodHandler,
-			AttendanceHandler: attendanceHandler,
-			OvertimeHandler: overtimeHandler,
-			ReimbursementHandler: reimbursementHandler,
+			AttendanceHandler:       attendanceHandler,
+			OvertimeHandler:         overtimeHandler,
+			ReimbursementHandler:    reimbursementHandler,
+			PayrollHandler:          payrollHandler,
 		},
 	}, nil
 }
@@ -75,7 +86,7 @@ func NewApp() *App {
 	router := gin.Default()
 	routes.SetupRoutes(cfg.Auth.SecretKey, router, cfg.Handler)
 
-	return &App {
+	return &App{
 		Router: router,
 		Config: cfg,
 	}

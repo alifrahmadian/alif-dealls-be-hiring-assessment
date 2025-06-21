@@ -2,12 +2,15 @@ package repositories
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/alifrahmadian/alif-dealls-be-hiring-assessment/internal/models"
 )
 
 type ReimbursementRepository interface {
 	CreateReimbursement(reimbursement *models.Reimbursement) (*models.Reimbursement, error)
+	SumReimbursementAmountPerPeriod(userID int64, startDate time.Time, endDate time.Time) (uint64, error)
+	InsertPayrollID(tx *sql.Tx, userID, payrollID int64, startDate, endDate time.Time) error
 }
 
 type reimbursementRepository struct {
@@ -43,4 +46,42 @@ func (r *reimbursementRepository) CreateReimbursement(reimbursement *models.Reim
 	}
 
 	return reimbursement, nil
+}
+
+func (r *reimbursementRepository) SumReimbursementAmountPerPeriod(userID int64, startDate time.Time, endDate time.Time) (uint64, error) {
+	var sum uint64
+
+	query := `
+		SELECT COALESCE(SUM(reimbursement_amount), 0) FROM reimbursements
+		WHERE user_id = $1
+		AND payroll_id IS NULL
+		AND date BETWEEN $2 AND $3;
+	`
+
+	err := r.DB.QueryRow(
+		query,
+		userID,
+		startDate,
+		endDate,
+	).Scan(&sum)
+	if err != nil {
+		return 0, err
+	}
+
+	return sum, nil
+}
+
+func (r *reimbursementRepository) InsertPayrollID(tx *sql.Tx, userID, payrollID int64, startDate, endDate time.Time) error {
+	query := `
+		UPDATE reimbursements
+		SET payroll_id = $1, updated_at = NOW()
+		WHERE user_id = $2 
+		AND date BETWEEN $3 AND $4;
+	`
+	_, err := tx.Exec(query, payrollID, userID, startDate, endDate)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
