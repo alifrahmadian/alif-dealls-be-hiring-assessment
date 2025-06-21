@@ -69,6 +69,11 @@ func (h *PayrollHandler) CreatePayroll(c *gin.Context) {
 			return
 		}
 
+		if err == e.ErrPayrollAttendancePeriodNotStartedYet {
+			responses.ErrorResponse(c, http.StatusBadRequest, e.ErrPayrollAttendancePeriodNotStartedYet.Error())
+			return
+		}
+
 		responses.ErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}

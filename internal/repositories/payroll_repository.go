@@ -10,6 +10,7 @@ type PayrollRepository interface {
 	GetDB() *sql.DB
 	CreatePayroll(tx *sql.Tx, payroll *models.Payroll) (*models.Payroll, error)
 	CheckIfPayrollHasBeenProcessed(userID, attendancePeriodID int64) (bool, error)
+	// GetEmployeePayslipByUserID() (*models.Payroll, error)
 }
 
 type payrollRepository struct {

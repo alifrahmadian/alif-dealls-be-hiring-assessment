@@ -1,6 +1,8 @@
 package services
 
 import (
+	"time"
+
 	"github.com/alifrahmadian/alif-dealls-be-hiring-assessment/internal/models"
 	r "github.com/alifrahmadian/alif-dealls-be-hiring-assessment/internal/repositories"
 	e "github.com/alifrahmadian/alif-dealls-be-hiring-assessment/pkg/errors"
@@ -47,6 +49,13 @@ func (s *payrollService) CreatePayroll(payroll *models.Payroll) (*models.Payroll
 	attendancePeriod, err := s.AttendancePeriodRepo.GetAttendancePeriodByID(payroll.AttendancePeriodID)
 	if err != nil {
 		return nil, err
+	}
+
+	now := time.Now().Truncate(24 * time.Hour)
+	startDate := attendancePeriod.StartDate.Truncate(24 * time.Hour)
+
+	if now.Before(startDate) {
+		return nil, e.ErrPayrollAttendancePeriodNotStartedYet
 	}
 
 	isPayrollHasBeenProcessed, err := s.PayrollRepo.CheckIfPayrollHasBeenProcessed(user.ID, attendancePeriod.ID)
