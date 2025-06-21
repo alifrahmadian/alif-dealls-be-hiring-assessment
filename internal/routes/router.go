@@ -13,11 +13,11 @@ func SetupRoutes(secretKey string, router *gin.Engine, handlers *configs.Handler
 		publicRoutes.POST("/login", handlers.AuthHandler.Login)
 	}
 
-	adminRoutes := router.Group("")
+	adminRoutes := router.Group("/admin")
 	adminRoutes.Use(middlewares.AuthMiddleware(secretKey, constants.RoleAdmin))
 	{
-		adminRoutes.POST("/admin/attendance_periods", handlers.AttendancePeriodHandler.CreateAttendancePeriod)
-		adminRoutes.POST("/admin/payrolls", handlers.PayrollHandler.CreatePayroll)
+		adminRoutes.POST("/attendance_periods", handlers.AttendancePeriodHandler.CreateAttendancePeriod)
+		adminRoutes.POST("/payrolls", handlers.PayrollHandler.CreatePayroll)
 	}
 
 	employeeRoutes := router.Group("")
