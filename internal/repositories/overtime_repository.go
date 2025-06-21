@@ -72,7 +72,7 @@ func (r *overtimeRepository) SumOvertimeHoursPerPeriod(userID int64, startDate t
 		SELECT COALESCE(SUM(overtime_hours), 0) FROM overtimes
 		WHERE user_id = $1
 		AND payroll_id IS NULL
-		AND date BETWEEN $2 AND $3;
+		AND date::date BETWEEN $2::date AND $3::date;
 	`
 
 	err := r.DB.QueryRow(

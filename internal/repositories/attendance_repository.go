@@ -73,7 +73,7 @@ func (r *attendanceRepository) CountEmployeeAttendancePerPeriod(userID int64, st
 		SELECT COUNT(*) FROM attendances
 		WHERE user_id = $1
 		AND payroll_id IS NULL
-		AND date BETWEEN $2 AND $3;
+		AND date::date BETWEEN $2::date AND $3::date;
 	`
 
 	err := r.DB.QueryRow(
@@ -94,7 +94,7 @@ func (r *attendanceRepository) InsertPayrollID(tx *sql.Tx, userID, payrollID int
 		UPDATE attendances
 		SET payroll_id = $1, updated_at = NOW()
 		WHERE user_id = $2 
-		AND date BETWEEN $3 AND $4;
+		AND date::date BETWEEN $3::date AND $4::date;
 	`
 	_, err := tx.Exec(query, payrollID, userID, startDate, endDate)
 	if err != nil {

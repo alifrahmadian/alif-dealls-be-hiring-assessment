@@ -55,7 +55,7 @@ func (r *reimbursementRepository) SumReimbursementAmountPerPeriod(userID int64, 
 		SELECT COALESCE(SUM(reimbursement_amount), 0) FROM reimbursements
 		WHERE user_id = $1
 		AND payroll_id IS NULL
-		AND date BETWEEN $2 AND $3;
+		AND date::date BETWEEN $2::date AND $3::date;
 	`
 
 	err := r.DB.QueryRow(
@@ -76,7 +76,7 @@ func (r *reimbursementRepository) InsertPayrollID(tx *sql.Tx, userID, payrollID 
 		UPDATE reimbursements
 		SET payroll_id = $1, updated_at = NOW()
 		WHERE user_id = $2 
-		AND date BETWEEN $3 AND $4;
+		AND date::date BETWEEN $3::date AND $4::date;
 	`
 	_, err := tx.Exec(query, payrollID, userID, startDate, endDate)
 	if err != nil {
