@@ -58,11 +58,10 @@ func (r *payrollRepository) CreatePayroll(tx *sql.Tx, payroll *models.Payroll) (
 
 func (r *payrollRepository) CheckIfPayrollHasBeenProcessed(userID, attendancePeriodID int64) (bool, error) {
 	query := `
-		SELECT id, user_id, attendance_period_id FROM payrolls WHERE user_id = $1 AND attendance_period_id = $2
+		SELECT user_id, attendance_period_id FROM payrolls WHERE user_id = $1 AND attendance_period_id = $2
 	`
-	var id int64
 
-	err := r.DB.QueryRow(query, userID, attendancePeriodID).Scan(&id)
+	err := r.DB.QueryRow(query, userID, attendancePeriodID).Scan(&userID, &attendancePeriodID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return false, nil
