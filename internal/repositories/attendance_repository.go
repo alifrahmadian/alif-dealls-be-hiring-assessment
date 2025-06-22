@@ -12,6 +12,7 @@ type AttendanceRepository interface {
 	CheckIfUserHasRecordAttendance(userID int64, date time.Time) (bool, error)
 	CountEmployeeAttendancePerPeriod(userID int64, startDate time.Time, endDate time.Time) (uint64, error)
 	InsertPayrollID(tx *sql.Tx, userID, payrollID int64, startDate, endDate time.Time) error
+	GetAttendanceByPayrollID(payrollID, userID int64) ([]*models.Attendance, error)
 }
 
 type attendanceRepository struct {
@@ -102,4 +103,48 @@ func (r *attendanceRepository) InsertPayrollID(tx *sql.Tx, userID, payrollID int
 	}
 
 	return nil
+}
+
+func (r *attendanceRepository) GetAttendanceByPayrollID(payrollID, userID int64) ([]*models.Attendance, error) {
+	var attendances []*models.Attendance
+
+	query := `
+		SELECT
+			id,
+			user_id,
+			payroll_id,
+			date
+		FROM
+			attendances
+		WHERE
+			payroll_id = $1 AND user_id = $2
+	`
+
+	rows, err := r.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		attendance := &models.Attendance{}
+		err := rows.Scan(
+			&attendance.ID,
+			&attendance.UserID,
+			&attendance.PayrollID,
+			&attendance.Date,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attendances = append(attendances, attendance)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return attendances, nil
 }
