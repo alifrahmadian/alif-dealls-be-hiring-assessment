@@ -42,11 +42,17 @@ type CreatePayrollResponse struct {
 }
 
 type GeneratePayslipPayrollResponse struct {
-	ID                 int64                                  `json:"id"`
-	Username           string                                 `json:"user_name"`
-	AttendancePeriodID int64                                  `json:"attendance_period_id"`
-	AttendanceDetails  []GeneratePayslipAttendanceResponse    `json:"attendance_details"`
-	OvertimeDetails    []GeneratePayslipOvertimeResponse      `json:"overtime_details"`
-	Reimbursements     []GeneratePayslipReimbursementResponse `json:"reimbursements"`
-	TotalTakeHomePay   uint64                                 `json:"total_take_home_pay"`
+	ID                  int64                                   `json:"id"`
+	Username            string                                  `json:"user_name"`
+	AttendancePeriodID  int64                                   `json:"attendance_period_id"`
+	BaseSalary          uint64                                  `json:"base_salary"`
+	AttendanceDays      uint64                                  `json:"attendance_days"`
+	AttendanceAmount    uint64                                  `json:"attendance_amount"`
+	AttendanceDetails   []*GeneratePayslipAttendanceResponse    `json:"attendance_details"`
+	OvertimeHours       uint64                                  `json:"overtime_hours"`
+	OvertimeAmount      uint64                                  `json:"overtime_amount"`
+	OvertimeDetails     []*GeneratePayslipOvertimeResponse      `json:"overtime_details"`
+	ReimbursementAmount uint64                                  `json:"reimbursement_amount"`
+	Reimbursements      []*GeneratePayslipReimbursementResponse `json:"reimbursements"`
+	TotalTakeHomePay    uint64                                  `json:"total_take_home_pay"`
 }

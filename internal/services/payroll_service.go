@@ -3,6 +3,7 @@ package services
 import (
 	"time"
 
+	"github.com/alifrahmadian/alif-dealls-be-hiring-assessment/internal/handlers/dtos"
 	"github.com/alifrahmadian/alif-dealls-be-hiring-assessment/internal/models"
 	r "github.com/alifrahmadian/alif-dealls-be-hiring-assessment/internal/repositories"
 	e "github.com/alifrahmadian/alif-dealls-be-hiring-assessment/pkg/errors"
@@ -11,6 +12,7 @@ import (
 
 type PayrollService interface {
 	CreatePayroll(payroll *models.Payroll) (*models.Payroll, error)
+	GenerateEmployeePayslip(userID, attendancePeriodID, payrollID int64) (*dtos.GeneratePayslipPayrollResponse, error)
 }
 
 type payrollService struct {
@@ -141,4 +143,84 @@ func (s *payrollService) CreatePayroll(payroll *models.Payroll) (*models.Payroll
 	}
 
 	return newPayroll, err
+}
+
+func (s *payrollService) GenerateEmployeePayslip(userID, attendancePeriodID, payrollID int64) (*dtos.GeneratePayslipPayrollResponse, error) {
+	user, err := s.UserRepo.GetUserByID(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	attendanceDetails, err := s.AttendanceRepo.GetEmployeeAttendancesByPayrollID(payrollID, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	overtimeDetails, err := s.OvertimeRepo.GetEmployeeOvertimesByPayrollID(payrollID, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	reimbursements, err := s.ReimbursementRepo.GetEmployeeReimbursementsByPayrollID(payrollID, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	payslip, err := s.PayrollRepo.GetEmployeePayrollByID(payrollID, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	attendanceResponses := make([]*dtos.GeneratePayslipAttendanceResponse, len(attendanceDetails))
+	for i, attendanceDetail := range attendanceDetails {
+		attendanceResponses[i] = &dtos.GeneratePayslipAttendanceResponse{
+			ID:             attendanceDetail.ID,
+			UserID:         attendanceDetail.UserID,
+			PayrollID:      attendanceDetail.PayrollID,
+			Date:           attendanceDetail.Date.Format("2006-01-02"),
+			AttendanceRate: utils.CalculateDailyRate(payslip.BaseSalary),
+		}
+	}
+
+	overtimeResponses := make([]*dtos.GeneratePayslipOvertimeResponse, len(overtimeDetails))
+	for i, overtimeDetail := range overtimeDetails {
+		overtimeResponses[i] = &dtos.GeneratePayslipOvertimeResponse{
+			ID:            overtimeDetail.ID,
+			UserID:        overtimeDetail.UserID,
+			PayrollID:     *overtimeDetail.PayrollID,
+			Date:          overtimeDetail.Date.Format("2006-01-02"),
+			OvertimeHours: overtimeDetail.OvertimeHours,
+			OvertimeRate:  utils.CalculateOvertimeAmount(payslip.BaseSalary, overtimeDetail.OvertimeHours),
+		}
+	}
+
+	reimbursementResponses := make([]*dtos.GeneratePayslipReimbursementResponse, len(reimbursements))
+	for i, reimbursementDetail := range reimbursements {
+		reimbursementResponses[i] = &dtos.GeneratePayslipReimbursementResponse{
+			ID:                  reimbursementDetail.ID,
+			UserID:              reimbursementDetail.UserID,
+			PayrollID:           *reimbursementDetail.PayrollID,
+			ReimbursementAmount: reimbursementDetail.ReimbursementAmount,
+			Date:                reimbursementDetail.Date.Format("2006-01-02"),
+			Description:         reimbursementDetail.Description,
+		}
+	}
+
+	response := &dtos.GeneratePayslipPayrollResponse{
+		ID:                  payslip.ID,
+		Username:            user.Username,
+		AttendancePeriodID:  payslip.AttendancePeriodID,
+		BaseSalary:          payslip.BaseSalary,
+		AttendanceDays:      payslip.AttendanceDays,
+		AttendanceAmount:    payslip.AttendanceAmount,
+		AttendanceDetails:   attendanceResponses,
+		OvertimeHours:       payslip.OvertimeHours,
+		OvertimeAmount:      payslip.OvertimeAmount,
+		OvertimeDetails:     overtimeResponses,
+		ReimbursementAmount: payslip.ReimbursementAmount,
+		Reimbursements:      reimbursementResponses,
+		TotalTakeHomePay:    payslip.TotalTakeHomePay,
+	}
+
+	return response, nil
 }

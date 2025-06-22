@@ -11,5 +11,5 @@ type GeneratePayslipAttendanceResponse struct {
 	UserID         int64  `json:"user_id"`
 	PayrollID      *int64 `json:"payroll_id"`
 	Date           string `json:"date"`
-	AttendanceRate string `json:"attendance_rate"`
+	AttendanceRate uint64 `json:"attendance_rate"`
 }
