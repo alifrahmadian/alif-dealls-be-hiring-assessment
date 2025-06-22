@@ -11,6 +11,7 @@ type ReimbursementRepository interface {
 	CreateReimbursement(reimbursement *models.Reimbursement) (*models.Reimbursement, error)
 	SumReimbursementAmountPerPeriod(userID int64, startDate time.Time, endDate time.Time) (uint64, error)
 	InsertPayrollID(tx *sql.Tx, userID, payrollID int64, startDate, endDate time.Time) error
+	GetEmployeeReimbursementsByPayrollID(payrollID, userID int64) ([]*models.Reimbursement, error)
 }
 
 type reimbursementRepository struct {
@@ -84,4 +85,51 @@ func (r *reimbursementRepository) InsertPayrollID(tx *sql.Tx, userID, payrollID 
 	}
 
 	return nil
+}
+
+func (r *reimbursementRepository) GetEmployeeReimbursementsByPayrollID(payrollID, userID int64) ([]*models.Reimbursement, error) {
+	var reimbursements []*models.Reimbursement
+
+	query := `
+		SELECT 
+			id
+			user_id
+			payroll_id
+			reimbursement_amount
+			date
+			description
+		FROM
+			reimbursements
+		WHERE payroll_ID = $1 AND user_id = $2
+	`
+
+	rows, err := r.DB.Query(query, payrollID, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		reimbursement := &models.Reimbursement{}
+		err := rows.Scan(
+			&reimbursement.ID,
+			&reimbursement.UserID,
+			&reimbursement.PayrollID,
+			&reimbursement.ReimbursementAmount,
+			&reimbursement.Date,
+			&reimbursement.Description,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		reimbursements = append(reimbursements, reimbursement)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return reimbursements, nil
 }
