@@ -12,6 +12,7 @@ type OvertimeRepository interface {
 	CheckIfOvertimeHasBeenTaken(date time.Time) (bool, error)
 	SumOvertimeHoursPerPeriod(userID int64, startDate time.Time, endDate time.Time) (uint64, error)
 	InsertPayrollID(tx *sql.Tx, userID, payrollID int64, startDate, endDate time.Time) error
+	GetEmployeeOvertimesByPayrollID(payrollID, userID int64) ([]*models.Overtime, error)
 }
 
 type overtimeRepository struct {
@@ -101,4 +102,49 @@ func (r *overtimeRepository) InsertPayrollID(tx *sql.Tx, userID, payrollID int64
 	}
 
 	return nil
+}
+
+func (r *overtimeRepository) GetEmployeeOvertimesByPayrollID(payrollID, userID int64) ([]*models.Overtime, error) {
+	var overtimes []*models.Overtime
+
+	query := `
+		SELECT
+			id,
+			user_id,
+			payroll_id,
+			date,
+			overtime_hours
+		FROM
+			overtimes
+		WHERE payroll_id = $1 AND user_id = $2
+	`
+
+	rows, err := r.DB.Query(query, payrollID, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		overtime := &models.Overtime{}
+		err := rows.Scan(
+			&overtime.ID,
+			&overtime.UserID,
+			&overtime.PayrollID,
+			&overtime.Date,
+			&overtime.OvertimeHours,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		overtimes = append(overtimes, overtime)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return overtimes, nil
 }

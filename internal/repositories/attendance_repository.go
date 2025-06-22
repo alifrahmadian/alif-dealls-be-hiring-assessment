@@ -12,7 +12,7 @@ type AttendanceRepository interface {
 	CheckIfUserHasRecordAttendance(userID int64, date time.Time) (bool, error)
 	CountEmployeeAttendancePerPeriod(userID int64, startDate time.Time, endDate time.Time) (uint64, error)
 	InsertPayrollID(tx *sql.Tx, userID, payrollID int64, startDate, endDate time.Time) error
-	GetAttendanceByPayrollID(payrollID, userID int64) ([]*models.Attendance, error)
+	GetEmployeeAttendancesByPayrollID(payrollID, userID int64) ([]*models.Attendance, error)
 }
 
 type attendanceRepository struct {
@@ -105,7 +105,7 @@ func (r *attendanceRepository) InsertPayrollID(tx *sql.Tx, userID, payrollID int
 	return nil
 }
 
-func (r *attendanceRepository) GetAttendanceByPayrollID(payrollID, userID int64) ([]*models.Attendance, error) {
+func (r *attendanceRepository) GetEmployeeAttendancesByPayrollID(payrollID, userID int64) ([]*models.Attendance, error) {
 	var attendances []*models.Attendance
 
 	query := `
@@ -120,7 +120,7 @@ func (r *attendanceRepository) GetAttendanceByPayrollID(payrollID, userID int64)
 			payroll_id = $1 AND user_id = $2
 	`
 
-	rows, err := r.DB.Query(query)
+	rows, err := r.DB.Query(query, payrollID, userID)
 	if err != nil {
 		return nil, err
 	}
