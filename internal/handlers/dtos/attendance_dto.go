@@ -1,7 +1,15 @@
 package dtos
 
 type CreateAttendanceResponse struct {
-	ID int64 `json:"id"`
-	UserID int64 `json:"user_id"`
-	Date string `json:"date"`
+	ID     int64  `json:"id"`
+	UserID int64  `json:"user_id"`
+	Date   string `json:"date"`
+}
+
+type GeneratePayslipAttendanceResponse struct {
+	ID             int64  `json:"id"`
+	UserID         int64  `json:"user_id"`
+	PayrollID      *int64 `json:"payroll_id"`
+	Date           string `json:"date"`
+	AttendanceRate string `json:"attendance_rate"`
 }
