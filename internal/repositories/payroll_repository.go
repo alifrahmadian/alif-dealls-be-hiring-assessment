@@ -4,13 +4,14 @@ import (
 	"database/sql"
 
 	"github.com/alifrahmadian/alif-dealls-be-hiring-assessment/internal/models"
+	e "github.com/alifrahmadian/alif-dealls-be-hiring-assessment/pkg/errors"
 )
 
 type PayrollRepository interface {
 	GetDB() *sql.DB
 	CreatePayroll(tx *sql.Tx, payroll *models.Payroll) (*models.Payroll, error)
 	CheckIfPayrollHasBeenProcessed(userID, attendancePeriodID int64) (bool, error)
-	// GetEmployeePayslipByUserAndPayrollID(userID) (*models.Payroll, error)
+	GetEmployeePayrollByID(payrollID, userID int64) (*models.Payroll, error)
 }
 
 type payrollRepository struct {
@@ -72,4 +73,50 @@ func (r *payrollRepository) CheckIfPayrollHasBeenProcessed(userID, attendancePer
 	}
 
 	return true, nil
+}
+
+func (r *payrollRepository) GetEmployeePayrollByID(payrollID, userID int64) (*models.Payroll, error) {
+	payroll := &models.Payroll{}
+
+	query := `
+		SELECT 
+			id, 
+			user_id, 
+			attendance_period_id, 
+			base_salary, 
+			attendance_days, 
+			attendance_amount, 
+			overtime_hours, 
+			overtime_amount, 
+			reimbursement_amount,
+			total_take_home_pay
+		WHERE payroll_id = $1 AND user_id = $2
+	`
+
+	err := r.DB.QueryRow(
+		query,
+		payrollID,
+		userID,
+	).Scan(
+		&payroll.ID,
+		&payroll.UserID,
+		&payroll.AttendancePeriodID,
+		&payroll.BaseSalary,
+		&payroll.AttendanceDays,
+		&payroll.AttendanceAmount,
+		&payroll.OvertimeHours,
+		&payroll.OvertimeAmount,
+		&payroll.ReimbursementAmount,
+		&payroll.TotalTakeHomePay,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, e.ErrPayrollNotFound
+		}
+
+		return nil, err
+	}
+
+	return payroll, nil
 }

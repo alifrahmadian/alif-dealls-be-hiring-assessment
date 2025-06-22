@@ -40,3 +40,13 @@ type CreatePayrollResponse struct {
 	CreatedAt           string `json:"created_at"`
 	UpdatedAt           string `json:"updated_at"`
 }
+
+type GeneratePayslipPayrollResponse struct {
+	ID                 int64                                  `json:"id"`
+	Username           string                                 `json:"user_name"`
+	AttendancePeriodID int64                                  `json:"attendance_period_id"`
+	AttendanceDetails  []GeneratePayslipAttendanceResponse    `json:"attendance_details"`
+	OvertimeDetails    []GeneratePayslipOvertimeResponse      `json:"overtime_details"`
+	Reimbursements     []GeneratePayslipReimbursementResponse `json:"reimbursements"`
+	TotalTakeHomePay   uint64                                 `json:"total_take_home_pay"`
+}

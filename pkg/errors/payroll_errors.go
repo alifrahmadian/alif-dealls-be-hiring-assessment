@@ -7,4 +7,5 @@ var (
 	ErrPayrollUserIDRequired                = errors.New("user id is required")
 	ErrPayrollAttendancePeriodIDRequired    = errors.New("attendance period id is required")
 	ErrPayrollAttendancePeriodNotStartedYet = errors.New("attendance period has not started yet")
+	ErrPayrollNotFound                      = errors.New("payroll not found")
 )
