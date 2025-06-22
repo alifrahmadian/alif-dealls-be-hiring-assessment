@@ -3,5 +3,5 @@ MAIN=./cmd
 
 .PHONY: run build clean tidy lint test
 
-dev:
-	air
+run:
+	go run $(MAIN)

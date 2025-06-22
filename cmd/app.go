@@ -32,8 +32,6 @@ func LoadConfig() (*configs.Config, error) {
 		return nil, fmt.Errorf("failed to connect database: %w", err)
 	}
 
-	// defer db.Close()
-
 	userRepo := repositories.NewUserRepository(db)
 	attendancePeriodRepo := repositories.NewAttendancePeriodRepository(db)
 	attendanceRepo := repositories.NewAttendanceRepository(db)
