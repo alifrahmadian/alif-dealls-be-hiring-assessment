@@ -13,6 +13,7 @@ import (
 type PayrollService interface {
 	CreatePayroll(payroll *models.Payroll) (*models.Payroll, error)
 	GenerateEmployeePayslip(userID, attendancePeriodID, payrollID int64) (*dtos.GeneratePayslipPayrollResponse, error)
+	GetEmployeePayslipSummaryByAttendancePeriodID(attendancePeriodID int64) (*dtos.PayslipSummary, error)
 }
 
 type payrollService struct {
@@ -229,6 +230,43 @@ func (s *payrollService) GenerateEmployeePayslip(userID, attendancePeriodID, pay
 		ReimbursementAmount:  payslip.ReimbursementAmount,
 		Reimbursements:       reimbursementResponses,
 		TotalTakeHomePay:     payslip.TotalTakeHomePay,
+	}
+
+	return response, nil
+}
+
+func (s *payrollService) GetEmployeePayslipSummaryByAttendancePeriodID(attendancePeriodID int64) (*dtos.PayslipSummary, error) {
+	attendancePeriod, err := s.AttendancePeriodRepo.GetAttendancePeriodByID(attendancePeriodID)
+	if err != nil {
+		return nil, err
+	}
+
+	employeePayslips, err := s.PayrollRepo.GetEmployeePayrollsByAttendancePeriodID(attendancePeriodID)
+	if err != nil {
+		return nil, err
+	}
+
+	employeePayslipSummaries := make([]*dtos.EmployeePayslipSummary, len(employeePayslips))
+
+	var totalTakeHomePay uint64
+	totalTakeHomePay = 0
+
+	for i, employeePayslip := range employeePayslips {
+		employeePayslipSummaries[i] = &dtos.EmployeePayslipSummary{
+			UserID:      employeePayslip.UserID,
+			Username:    employeePayslip.User.Username,
+			TakeHomePay: employeePayslip.TotalTakeHomePay,
+		}
+
+		totalTakeHomePay += employeePayslip.TotalTakeHomePay
+	}
+
+	response := &dtos.PayslipSummary{
+		AttendancePeriodID: attendancePeriodID,
+		EmployeeSummaries:  employeePayslipSummaries,
+		PeriodStartDate:    attendancePeriod.StartDate.Format("2006-01-02"),
+		PeriodEndDate:      attendancePeriod.EndDate.Format("2006-01-02"),
+		TotalTakeHomePay:   totalTakeHomePay,
 	}
 
 	return response, nil

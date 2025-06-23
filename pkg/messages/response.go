@@ -7,4 +7,5 @@ var (
 	RspCreateReimbursementSuccess    = "successfully proposed reimbursement"
 	RspCreatePayrollSuccess          = "successfully run payroll"
 	RspGeneratePayslipSuccess        = "successfuly generate payslip"
+	RspGeneratePayslipSummarySuccess = "successfully generate employee payslip summaries"
 )

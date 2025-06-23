@@ -12,6 +12,7 @@ type PayrollRepository interface {
 	CreatePayroll(tx *sql.Tx, payroll *models.Payroll) (*models.Payroll, error)
 	CheckIfPayrollHasBeenProcessed(userID, attendancePeriodID int64) (bool, error)
 	GetEmployeePayrollByID(payrollID, userID int64) (*models.Payroll, error)
+	GetEmployeePayrollsByAttendancePeriodID(attendancePeriodID int64) ([]*models.Payroll, error)
 }
 
 type payrollRepository struct {
@@ -121,4 +122,51 @@ func (r *payrollRepository) GetEmployeePayrollByID(payrollID, userID int64) (*mo
 	}
 
 	return payroll, nil
+}
+
+func (r *payrollRepository) GetEmployeePayrollsByAttendancePeriodID(attendancePeriodID int64) ([]*models.Payroll, error) {
+	var payrolls []*models.Payroll
+
+	query := `
+		SELECT 
+			payrolls.id,
+			payrolls.user_id, 
+			payrolls.attendance_period_id, 
+			payrolls.total_take_home_pay,
+			users.username
+		FROM
+			payrolls
+		LEFT JOIN
+			users ON payrolls.user_id = users.id
+		WHERE payrolls.attendance_period_id = $1
+	`
+
+	rows, err := r.DB.Query(query, attendancePeriodID)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		payroll := &models.Payroll{}
+		err := rows.Scan(
+			&payroll.ID,
+			&payroll.UserID,
+			&payroll.AttendancePeriodID,
+			&payroll.TotalTakeHomePay,
+			&payroll.User.Username,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		payrolls = append(payrolls, payroll)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return payrolls, nil
 }

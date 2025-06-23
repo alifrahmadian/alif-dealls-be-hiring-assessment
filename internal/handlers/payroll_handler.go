@@ -139,3 +139,29 @@ func (h *PayrollHandler) GeneratePayslip(c *gin.Context) {
 	responses.SuccessResponse(c, messages.RspGeneratePayslipSuccess, response)
 
 }
+
+func (h *PayrollHandler) GenerateEmployeePayslipSummary(c *gin.Context) {
+	attendancePeriodIDParam := c.Query("attendance_period_id")
+	if attendancePeriodIDParam == "" {
+		responses.ErrorResponse(c, http.StatusBadRequest, e.ErrPayrollAttendancePeriodIDRequired.Error())
+		return
+	}
+	attendancePeriodID, err := strconv.ParseInt(attendancePeriodIDParam, 10, 64)
+	if err != nil {
+		responses.ErrorResponse(c, http.StatusBadRequest, e.ErrPayrollInvalidAttendancePeriodID.Error())
+		return
+	}
+
+	response, err := h.PayrollService.GetEmployeePayslipSummaryByAttendancePeriodID(attendancePeriodID)
+	if err != nil {
+		if err == e.ErrAttendancePeriodNotFound {
+			responses.ErrorResponse(c, http.StatusNotFound, e.ErrAttendancePeriodNotFound.Error())
+			return
+		}
+
+		responses.ErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	responses.SuccessResponse(c, messages.RspGeneratePayslipSummarySuccess, response)
+}

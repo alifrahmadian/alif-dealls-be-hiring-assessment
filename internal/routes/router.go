@@ -18,6 +18,7 @@ func SetupRoutes(secretKey string, router *gin.Engine, handlers *configs.Handler
 	{
 		adminRoutes.POST("/attendance_periods", handlers.AttendancePeriodHandler.CreateAttendancePeriod)
 		adminRoutes.POST("/payrolls", handlers.PayrollHandler.CreatePayroll)
+		adminRoutes.GET("/payrolls/generate_summary", handlers.PayrollHandler.GenerateEmployeePayslipSummary)
 	}
 
 	employeeRoutes := router.Group("")

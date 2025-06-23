@@ -41,3 +41,17 @@ type GeneratePayslipPayrollResponse struct {
 	Reimbursements       []*GeneratePayslipReimbursementResponse `json:"reimbursements"`
 	TotalTakeHomePay     uint64                                  `json:"total_take_home_pay"`
 }
+
+type EmployeePayslipSummary struct {
+	UserID      int64  `json:"user_id"`
+	Username    string `json:"username"`
+	TakeHomePay uint64 `json:"take_home_pay"`
+}
+
+type PayslipSummary struct {
+	AttendancePeriodID int64                     `json:"attendance_period_id"`
+	EmployeeSummaries  []*EmployeePayslipSummary `json:"employee_summaries"`
+	PeriodStartDate    string                    `json:"period_start_date"`
+	PeriodEndDate      string                    `json:"period_end_date"`
+	TotalTakeHomePay   uint64                    `json:"total_take_home_pay"`
+}
