@@ -212,21 +212,23 @@ func (s *payrollService) GenerateEmployeePayslip(userID, attendancePeriodID, pay
 	}
 
 	response := &dtos.GeneratePayslipPayrollResponse{
-		ID:                  payslip.ID,
-		Username:            user.Username,
-		AttendancePeriodID:  payslip.AttendancePeriodID,
-		PeriodStartDate:     attendancePeriod.StartDate.Format("2006-01-02"),
-		PeriodEndDate:       attendancePeriod.EndDate.Format("2006-01-02"),
-		BaseSalary:          payslip.BaseSalary,
-		AttendanceDays:      payslip.AttendanceDays,
-		AttendanceAmount:    payslip.AttendanceAmount,
-		AttendanceDetails:   attendanceResponses,
-		OvertimeHours:       payslip.OvertimeHours,
-		OvertimeAmount:      payslip.OvertimeAmount,
-		OvertimeDetails:     overtimeResponses,
-		ReimbursementAmount: payslip.ReimbursementAmount,
-		Reimbursements:      reimbursementResponses,
-		TotalTakeHomePay:    payslip.TotalTakeHomePay,
+		ID:                   payslip.ID,
+		Username:             user.Username,
+		AttendancePeriodID:   payslip.AttendancePeriodID,
+		PeriodStartDate:      attendancePeriod.StartDate.Format("2006-01-02"),
+		PeriodEndDate:        attendancePeriod.EndDate.Format("2006-01-02"),
+		BaseSalary:           payslip.BaseSalary,
+		AttendanceDays:       payslip.AttendanceDays,
+		AttendanceAmount:     payslip.AttendanceAmount,
+		AttendanceDailyRate:  utils.CalculateDailyRate(payslip.BaseSalary),
+		AttendanceHourlyRate: utils.CalculateHourlyRate(payslip.BaseSalary),
+		AttendanceDetails:    attendanceResponses,
+		OvertimeHours:        payslip.OvertimeHours,
+		OvertimeAmount:       payslip.OvertimeAmount,
+		OvertimeDetails:      overtimeResponses,
+		ReimbursementAmount:  payslip.ReimbursementAmount,
+		Reimbursements:       reimbursementResponses,
+		TotalTakeHomePay:     payslip.TotalTakeHomePay,
 	}
 
 	return response, nil

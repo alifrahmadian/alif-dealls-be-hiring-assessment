@@ -42,19 +42,21 @@ type CreatePayrollResponse struct {
 }
 
 type GeneratePayslipPayrollResponse struct {
-	ID                  int64                                   `json:"id"`
-	Username            string                                  `json:"user_name"`
-	AttendancePeriodID  int64                                   `json:"attendance_period_id"`
-	PeriodStartDate     string                                  `json:"period_start_date"`
-	PeriodEndDate       string                                  `json:"period_end_date"`
-	BaseSalary          uint64                                  `json:"base_salary"`
-	AttendanceDays      uint64                                  `json:"attendance_days"`
-	AttendanceAmount    uint64                                  `json:"attendance_amount"`
-	AttendanceDetails   []*GeneratePayslipAttendanceResponse    `json:"attendance_details"`
-	OvertimeHours       uint64                                  `json:"overtime_hours"`
-	OvertimeAmount      uint64                                  `json:"overtime_amount"`
-	OvertimeDetails     []*GeneratePayslipOvertimeResponse      `json:"overtime_details"`
-	ReimbursementAmount uint64                                  `json:"reimbursement_amount"`
-	Reimbursements      []*GeneratePayslipReimbursementResponse `json:"reimbursements"`
-	TotalTakeHomePay    uint64                                  `json:"total_take_home_pay"`
+	ID                   int64                                   `json:"id"`
+	Username             string                                  `json:"user_name"`
+	AttendancePeriodID   int64                                   `json:"attendance_period_id"`
+	PeriodStartDate      string                                  `json:"period_start_date"`
+	PeriodEndDate        string                                  `json:"period_end_date"`
+	BaseSalary           uint64                                  `json:"base_salary"`
+	AttendanceDays       uint64                                  `json:"attendance_days"`
+	AttendanceAmount     uint64                                  `json:"attendance_amount"`
+	AttendanceDailyRate  uint64                                  `json:"attendance_daily_rate"`
+	AttendanceHourlyRate uint64                                  `json:"attendance_hourly_rate"`
+	AttendanceDetails    []*GeneratePayslipAttendanceResponse    `json:"attendance_details"`
+	OvertimeHours        uint64                                  `json:"overtime_hours"`
+	OvertimeAmount       uint64                                  `json:"overtime_amount"`
+	OvertimeDetails      []*GeneratePayslipOvertimeResponse      `json:"overtime_details"`
+	ReimbursementAmount  uint64                                  `json:"reimbursement_amount"`
+	Reimbursements       []*GeneratePayslipReimbursementResponse `json:"reimbursements"`
+	TotalTakeHomePay     uint64                                  `json:"total_take_home_pay"`
 }
