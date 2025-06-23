@@ -90,7 +90,9 @@ func (r *payrollRepository) GetEmployeePayrollByID(payrollID, userID int64) (*mo
 			overtime_amount, 
 			reimbursement_amount,
 			total_take_home_pay
-		WHERE payroll_id = $1 AND user_id = $2
+		FROM
+			payrolls
+		WHERE id = $1 AND user_id = $2
 	`
 
 	err := r.DB.QueryRow(

@@ -151,6 +151,11 @@ func (s *payrollService) GenerateEmployeePayslip(userID, attendancePeriodID, pay
 		return nil, err
 	}
 
+	attendancePeriod, err := s.AttendancePeriodRepo.GetAttendancePeriodByID(attendancePeriodID)
+	if err != nil {
+		return nil, err
+	}
+
 	attendanceDetails, err := s.AttendanceRepo.GetEmployeeAttendancesByPayrollID(payrollID, userID)
 	if err != nil {
 		return nil, err
@@ -210,6 +215,8 @@ func (s *payrollService) GenerateEmployeePayslip(userID, attendancePeriodID, pay
 		ID:                  payslip.ID,
 		Username:            user.Username,
 		AttendancePeriodID:  payslip.AttendancePeriodID,
+		PeriodStartDate:     attendancePeriod.StartDate.Format("2006-01-02"),
+		PeriodEndDate:       attendancePeriod.EndDate.Format("2006-01-02"),
 		BaseSalary:          payslip.BaseSalary,
 		AttendanceDays:      payslip.AttendanceDays,
 		AttendanceAmount:    payslip.AttendanceAmount,

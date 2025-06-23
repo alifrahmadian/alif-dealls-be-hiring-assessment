@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/alifrahmadian/alif-dealls-be-hiring-assessment/internal/handlers/dtos"
@@ -96,5 +97,45 @@ func (h *PayrollHandler) CreatePayroll(c *gin.Context) {
 	}
 
 	responses.SuccessResponse(c, messages.RspCreatePayrollSuccess, resp)
+
+}
+
+func (h *PayrollHandler) GeneratePayslip(c *gin.Context) {
+	userID := c.GetInt64("user_id")
+
+	attendancePeriodIDParam := c.Query("attendance_period_id")
+	if attendancePeriodIDParam == "" {
+		responses.ErrorResponse(c, http.StatusBadRequest, e.ErrPayrollAttendancePeriodIDRequired.Error())
+		return
+	}
+	attendancePeriodID, err := strconv.ParseInt(attendancePeriodIDParam, 10, 64)
+	if err != nil {
+		responses.ErrorResponse(c, http.StatusBadRequest, e.ErrPayrollInvalidAttendancePeriodID.Error())
+		return
+	}
+
+	payrollIDParam := c.Query("payroll_id")
+	if payrollIDParam == " " {
+		responses.ErrorResponse(c, http.StatusBadRequest, e.ErrPayrollIDRequired.Error())
+		return
+	}
+	payrollID, err := strconv.ParseInt(payrollIDParam, 10, 64)
+	if err != nil {
+		responses.ErrorResponse(c, http.StatusBadRequest, e.ErrPayrollInvalidPayrollID.Error())
+		return
+	}
+
+	response, err := h.PayrollService.GenerateEmployeePayslip(userID, attendancePeriodID, payrollID)
+	if err != nil {
+		if err == e.ErrPayrollNotFound {
+			responses.ErrorResponse(c, http.StatusNotFound, e.ErrPayrollNotFound.Error())
+			return
+		}
+
+		responses.ErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	responses.SuccessResponse(c, messages.RspGeneratePayslipSuccess, response)
 
 }

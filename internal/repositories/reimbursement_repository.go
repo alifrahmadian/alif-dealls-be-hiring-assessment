@@ -92,15 +92,15 @@ func (r *reimbursementRepository) GetEmployeeReimbursementsByPayrollID(payrollID
 
 	query := `
 		SELECT 
-			id
-			user_id
-			payroll_id
-			reimbursement_amount
-			date
+			id,
+			user_id,
+			payroll_id,
+			reimbursement_amount,
+			date,
 			description
 		FROM
 			reimbursements
-		WHERE payroll_ID = $1 AND user_id = $2
+		WHERE payroll_id = $1 AND user_id = $2
 	`
 
 	rows, err := r.DB.Query(query, payrollID, userID)

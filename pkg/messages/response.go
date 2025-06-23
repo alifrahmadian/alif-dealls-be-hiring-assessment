@@ -6,4 +6,5 @@ var (
 	RspCreateOvertimeSuccess         = "successfully proposed overtime"
 	RspCreateReimbursementSuccess    = "successfully proposed reimbursement"
 	RspCreatePayrollSuccess          = "successfully run payroll"
+	RspGeneratePayslipSuccess        = "successfuly generate payslip"
 )
